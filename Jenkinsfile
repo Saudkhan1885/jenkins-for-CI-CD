@@ -6,29 +6,20 @@ pipeline {
                 git branch: 'main', url: 'https://github.com/Saudkhan1885/jenkins-for-CI-CD.git'
             }
         }
-        stage('Install kubectl') {
-            steps {
-                script {
-                    // Install kubectl if not already installed
-                    sh """
-                    if ! command -v kubectl &>/dev/null; then
-                        echo "kubectl not found, installing..."
-                        curl -LO https://dl.k8s.io/release/v1.24.3/bin/linux/amd64/kubectl
-                        chmod +x ./kubectl
-                        mkdir -p \$HOME/bin
-                        mv ./kubectl \$HOME/bin/kubectl
-                    fi
-                    export PATH=\$HOME/bin:\$PATH
-                    """
-                }
-            }
-        }
+        
         stage('Build Docker Image') {
             steps {
                 sh 'docker build -t python-app .'
             }
         }
+        
         stage('Deploy to Kubernetes') {
+            agent {
+                docker {
+                    image 'bitnami/kubectl:latest'
+                    args '--privileged' // Necessary for some Kubernetes actions
+                }
+            }
             steps {
                 sh 'kubectl apply -f deployment.yaml'
             }
