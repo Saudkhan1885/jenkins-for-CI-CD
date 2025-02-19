@@ -15,8 +15,10 @@ pipeline {
                         echo "kubectl not found, installing..."
                         curl -LO https://dl.k8s.io/release/v1.24.3/bin/linux/amd64/kubectl
                         chmod +x ./kubectl
-                        sudo mv ./kubectl /usr/local/bin/kubectl
+                        mkdir -p \$HOME/bin
+                        mv ./kubectl \$HOME/bin/kubectl
                     fi
+                    export PATH=\$HOME/bin:\$PATH
                     """
                 }
             }
